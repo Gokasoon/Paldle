@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="Paldex"
+        android:id="@+id/paldexMenu"
+        android:icon="@drawable/bookmark"/>
+    <item
+        android:title="Home"
+        android:id="@+id/homeMenu"
+        android:icon="@drawable/home"/>
+</menu>

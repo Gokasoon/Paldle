@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Paldle" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/purple</item>
+    </style>
+
+    <style name="PalNameStyle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

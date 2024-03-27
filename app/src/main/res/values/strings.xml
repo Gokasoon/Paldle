@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Paldle</string>
+    <string name="paldex">Paldex</string>
+    <string name="hintET">Enter the pal\'s name</string>
+    <string name="imagenotworking">imageNotWorking</string>
+    <string name="guess">Guess</string>
+    <string name="name">Name</string>
+    <string name="id">ID</string>
+    <string name="types">Type</string>
+    <string name="size">Size</string>
+</resources>
