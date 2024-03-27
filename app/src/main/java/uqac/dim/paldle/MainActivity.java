@@ -60,9 +60,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fragGuess fragGuess = new fragGuess(palsReference);
+        FragGuess FragGuess = new FragGuess(palsReference);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.frag, fragGuess)
+                .add(R.id.frag, FragGuess)
                 .addToBackStack(null)
                 .commit();
 
@@ -79,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.frag);
 
-                if (currentFragment instanceof fragPaldex && id == R.id.paldexMenu) {
+                if (currentFragment instanceof FragPaldex && id == R.id.paldexMenu) {
                     return true;
                 }
-                if (currentFragment instanceof fragGuess && id == R.id.homeMenu) {
+                if (currentFragment instanceof FragGuess && id == R.id.homeMenu) {
                     return true;
                 }
 
@@ -91,10 +91,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (id == R.id.paldexMenu) {
-                    fragPaldex newFragment = new fragPaldex(palsReference);
+                    FragPaldex newFragment = new FragPaldex(palsReference);
                     transaction.replace(R.id.frag, newFragment);
                 } else if (id == R.id.homeMenu) {
-                    fragGuess newFragment = new fragGuess(palsReference);
+                    FragGuess newFragment = new FragGuess(palsReference);
                     transaction.replace(R.id.frag, newFragment);
                 }
 
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static class fragGuess extends Fragment {
+    public static class FragGuess extends Fragment {
 
         private int id;
         private int[] ids = new int[15];
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         private List<Pal> palList;
         private final DatabaseReference palsReference;
 
-        public fragGuess(DatabaseReference palsReference) {
+        public FragGuess(DatabaseReference palsReference) {
             this.palsReference = palsReference;
         }
 
@@ -359,12 +359,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static class fragPaldex extends Fragment implements View.OnClickListener{
+    public static class FragPaldex extends Fragment implements View.OnClickListener{
 
 
         private final DatabaseReference palsReference;
 
-        public fragPaldex(DatabaseReference palsReference) {
+        public FragPaldex(DatabaseReference palsReference) {
             this.palsReference = palsReference;
         }
 
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
 
                             ImageView img = new ImageView(getContext());
                             img.setContentDescription(id);
-                            img.setOnClickListener(fragPaldex.this);
+                            img.setOnClickListener(FragPaldex.this);
                             img.setPadding(10, 10, 10, 10);
                             Picasso.get()
                                     .load(pal.getImage())
@@ -430,9 +430,94 @@ public class MainActivity extends AppCompatActivity {
 
         public void onClick(View v) {
             String id = (String) v.getContentDescription();
-            Intent intent = new Intent(getContext(), PalView.class); // TODO
-            intent.putExtra("EXTRA_ID", id);
-            startActivity(intent);
+            Fragment fragPalView = new FragPalView();
+            Bundle args = new Bundle();
+            args.putString("EXTRA_ID", id);
+            fragPalView.setArguments(args);
+
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.frag, fragPalView);
+            transaction.addToBackStack(null);
+            transaction.commit();
         }
     }
+
+    public static class FragPalView extends Fragment implements View.OnClickListener {
+
+        private DatabaseReference palsReference;
+        private String palId;
+
+        public FragPalView() {
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            View view = inflater.inflate(R.layout.frag_palview, container, false);
+
+            Bundle args = getArguments();
+            if (args != null) {
+                palId = args.getString("EXTRA_ID");
+
+                if (palId != null && !palId.isEmpty()) {
+                    palsReference = FirebaseDatabase.getInstance().getReference("pals").child(palId);
+
+                    palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                Pal pal = dataSnapshot.getValue(Pal.class);
+
+                                ImageView img = view.findViewById(R.id.img);
+                                img.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border));
+                                img.setPadding(10, 10, 10, 10);
+                                Picasso.get()
+                                        .load(pal.getImage())
+                                        .resize(800, 800)
+                                        .centerInside()
+                                        .into(img);
+
+                                TextView name = view.findViewById(R.id.name);
+                                name.setText(pal.getName() + " (" + pal.getKey() + ")");
+
+                                TextView desc = view.findViewById(R.id.desc);
+                                desc.setText(pal.getDescription());
+
+                                TextView types = view.findViewById(R.id.types);
+                                String typess = "Types : ";
+                                for (String type : pal.getTypes()) {
+                                    typess += type + " ";
+                                }
+                                types.setText(typess);
+
+                                TextView size = view.findViewById(R.id.size);
+                                size.setText("Size : " + pal.getSize());
+
+                                Button backButton = view.findViewById(R.id.btnBack);
+                                backButton.setOnClickListener(FragPalView.this);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            // error
+                        }
+                    });
+                }
+            }
+            return view;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.btnBack) {
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag, new FragPaldex(FirebaseDatabase.getInstance().getReference("pals")));
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        }
+    }
+
 }
