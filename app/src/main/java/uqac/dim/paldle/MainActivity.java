@@ -348,8 +348,8 @@ public class MainActivity extends AppCompatActivity {
                     tv.setGravity(CENTER);
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
-                    Button btnShare = new Button(this.getContext());
-                    btnShare.setText("Share");
+                    Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
+
                     btnShare.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -362,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(shareIntent);
                         }
                     });
+                    llp.addView(btnShare);
                 } else {
                     et.setText("");
                 }
