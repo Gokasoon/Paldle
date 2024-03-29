@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         private int id;
         private Pal palOfTheDay;
         private List<Pal> palList;
-        private List<Pal> palsGuessed;
+        private List<Pal> palsGuessed = null;
         private final DatabaseReference palsReference;
 
         public FragGuess(DatabaseReference palsReference, int id) {
@@ -141,54 +141,104 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResume() {
-            super.onResume();
-            Log.v("FOUFOU", "restore");
-            restoreTableLayout(requireArguments());
+        public void onPause() {
+            super.onPause();
+            Log.v("FOUFOU", "pause");
+            for (Pal pal : palsGuessed ) {
+                Log.v("FOUFOU", "pal : " + pal.getName());
+            }
         }
 
         @Override
-        public void onPause() {
-            super.onPause();
-            Log.v("FOUFOU", "save");
-            saveTableLayout(requireArguments());
-        }
-
-
-        private void restoreTableLayout(Bundle savedInstanceState) {
+        public void onResume() {
+            super.onResume();
+            Log.v("FOUFOU", "resume");
             TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
-            int rowCount = savedInstanceState.getInt("tableRowCount", 0);
-            for (int i = 0; i < rowCount; i++) {
-                TableRow row = new TableRow(requireContext());
-                int childCount = 0;
-                while (savedInstanceState.containsKey("row_" + i + "_text_" + childCount)) {
-                    childCount++;
-                }
-                for (int j = 0; j < childCount; j++) {
-                    String text = savedInstanceState.getString("row_" + i + "_text_" + j);
-                    TextView textView = new TextView(requireContext());
-                    textView.setText(text);
-                    row.addView(textView);
-                }
-                tableLayout.addView(row);
-            }
-        }
+            for (Pal pal : palsGuessed ){
+                Log.v("FOUFOU", "pal : " + pal.getName());
+                TableRow tableRow = new TableRow(this.getContext());
+                tableRow.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border));
+                TextView textName = new TextView(this.getContext());
+                textName.setGravity(CENTER);
+                textName.setPadding(8, 16, 8, 16);
+                tableRow.addView(textName);
+                TextView textId = new TextView(this.getContext());
+                textId.setGravity(CENTER);
+                textId.setPadding(8, 16, 8, 16);
+                tableRow.addView(textId);
+                TextView textTypes = new TextView(this.getContext());
+                textTypes.setGravity(CENTER);
+                textTypes.setPadding(8, 16, 8, 16);
+                tableRow.addView(textTypes);
+                TextView textSize = new TextView(this.getContext());
+                textSize.setGravity(CENTER);
+                textSize.setPadding(8, 16, 8, 16);
+                tableRow.addView(textSize);
+                tableLayout.addView(tableRow);
 
-        private void saveTableLayout(Bundle outState) {
-            TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
-            int rowCount = tableLayout.getChildCount();
-            for (int i = 0; i < rowCount; i++) {
-                TableRow row = (TableRow) tableLayout.getChildAt(i);
-                int childCount = row.getChildCount();
-                for (int j = 0; j < childCount; j++) {
-                    View child = row.getChildAt(j);
-                    if (child instanceof TextView) {
-                        String text = ((TextView) child).getText().toString();
-                        outState.putString("row_" + i + "_text_" + j, text);
+                textName.setText(pal.getName());
+                if (pal.getName().equals(palOfTheDay.getName())) {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
+
+                textId.setText(String.valueOf(pal.getKey()));
+                String key = pal.getKey();
+
+                if (key.equals(palOfTheDay.getKey())) {
+                    textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    if (key.substring(0, 3).equals(palOfTheDay.getKey().substring(0, 3))) {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
                     }
                 }
+
+                String types = "";
+                for (String type : pal.getTypes()) {
+                    types += type + " ";
+                }
+                textTypes.setText(types);
+                List<String> guessTypes = pal.getTypes();
+                List<String> palTypes = palOfTheDay.getTypes();
+
+                if (guessTypes.size() == 2 && palTypes.size() == 2) {
+                    if ((Objects.equals(guessTypes.get(0), palTypes.get(0)) && Objects.equals(guessTypes.get(1), palTypes.get(1)) || (Objects.equals(guessTypes.get(0), palTypes.get(1)) && Objects.equals(guessTypes.get(1), palTypes.get(0))))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else if (Objects.equals(guessTypes.get(0), palTypes.get(0)) || Objects.equals(guessTypes.get(1), palTypes.get(1)) || Objects.equals(guessTypes.get(0), palTypes.get(1)) || Objects.equals(guessTypes.get(1), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else if (guessTypes.size() == 1 && palTypes.size() == 1) {
+                    if (Objects.equals(guessTypes.get(0), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else {
+                    boolean found = false;
+                    for (String type : guessTypes) {
+                        if (palTypes.contains(type)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                }
+                textSize.setText(String.valueOf(pal.getSize()));
+                if (Objects.equals(pal.getSize(), palOfTheDay.getSize())) {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
             }
-            outState.putInt("tableRowCount", rowCount);
         }
 
         @Override
@@ -198,7 +248,10 @@ public class MainActivity extends AppCompatActivity {
             View view = inflater.inflate(R.layout.frag_guess, container, false);
 
             palList = new ArrayList<>();
-            palsGuessed = new ArrayList<>();
+
+            if (palsGuessed == null){
+                palsGuessed = new ArrayList<>();
+            }
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
 
