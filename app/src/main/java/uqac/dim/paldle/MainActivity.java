@@ -3,6 +3,7 @@ package uqac.dim.paldle;
 import static android.view.Gravity.CENTER;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Log.v("FERU", "win before : " + String.valueOf(PalOfTheDayManager.getWin(this)));
         FragGuess FragGuess = new FragGuess(palsReference, id);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.frag, FragGuess)
+                .add(R.id.frag, FragGuess, "guess_fragment")
                 .addToBackStack(null)
                 .commit();
 
@@ -137,6 +138,57 @@ public class MainActivity extends AppCompatActivity {
         public FragGuess(DatabaseReference palsReference, int id) {
             this.palsReference = palsReference;
             this.id = id;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            Log.v("FOUFOU", "restore");
+            restoreTableLayout(requireArguments());
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            Log.v("FOUFOU", "save");
+            saveTableLayout(requireArguments());
+        }
+
+
+        private void restoreTableLayout(Bundle savedInstanceState) {
+            TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
+            int rowCount = savedInstanceState.getInt("tableRowCount", 0);
+            for (int i = 0; i < rowCount; i++) {
+                TableRow row = new TableRow(requireContext());
+                int childCount = 0;
+                while (savedInstanceState.containsKey("row_" + i + "_text_" + childCount)) {
+                    childCount++;
+                }
+                for (int j = 0; j < childCount; j++) {
+                    String text = savedInstanceState.getString("row_" + i + "_text_" + j);
+                    TextView textView = new TextView(requireContext());
+                    textView.setText(text);
+                    row.addView(textView);
+                }
+                tableLayout.addView(row);
+            }
+        }
+
+        private void saveTableLayout(Bundle outState) {
+            TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
+            int rowCount = tableLayout.getChildCount();
+            for (int i = 0; i < rowCount; i++) {
+                TableRow row = (TableRow) tableLayout.getChildAt(i);
+                int childCount = row.getChildCount();
+                for (int j = 0; j < childCount; j++) {
+                    View child = row.getChildAt(j);
+                    if (child instanceof TextView) {
+                        String text = ((TextView) child).getText().toString();
+                        outState.putString("row_" + i + "_text_" + j, text);
+                    }
+                }
+            }
+            outState.putInt("tableRowCount", rowCount);
         }
 
         @Override
