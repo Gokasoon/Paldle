@@ -2,8 +2,6 @@ package uqac.dim.paldle;
 
 import static android.view.Gravity.CENTER;
 
-import static uqac.dim.paldle.MainActivity.getRandomId;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -49,6 +47,7 @@ import java.util.Random;
 
 import uqac.dim.pallll.CustomAdapter;
 import uqac.dim.pallll.Pal;
+import uqac.dim.pallll.PalOfTheDayManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -115,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
     public static class FragGuess extends Fragment {
 
         private int id;
-        private int[] ids = new int[15];
         private Pal palOfTheDay;
         private List<Pal> palList;
         private List<Pal> palsGuessed;
@@ -131,109 +129,171 @@ public class MainActivity extends AppCompatActivity {
 
             View view = inflater.inflate(R.layout.frag_guess, container, false);
 
-            boolean find;
-            do {
-                id = getRandomId();
-                find = false;
-                for (int j : ids) {
-                    if (j == id) {
-                        find = true;
-                        id = getRandomId();
-                        break;
-                    }
-                }
-            } while (find);
-
-
             palList = new ArrayList<>();
             palsGuessed = new ArrayList<>();
 
-
             FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
 
-            palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
-                        String palId = palSnapshot.getKey();
-                        Pal pal = palSnapshot.getValue(Pal.class);
-                        if (palId != null && palId.equals(String.valueOf(id))) {
-                            palOfTheDay = pal;
+            if (PalOfTheDayManager.checkLastDate(requireContext())) { // true if lastDate != today
+
+                id = getRandomId();
+                palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
+                            String palId = palSnapshot.getKey();
+                            Pal pal = palSnapshot.getValue(Pal.class);
+                            if (palId != null && palId.equals(String.valueOf(id))) {
+                                palOfTheDay = pal;
+                            }
+                            palList.add(pal);
                         }
-                        palList.add(pal);
+
+                        AutoCompleteTextView et = view.findViewById(R.id.et);
+                        List<String> palName = new ArrayList<String>();
+                        for (Pal pal : palList) {
+                            palName.add(pal.getName());
+                        }
+                        CustomAdapter adapter = new CustomAdapter(requireContext(), palList, palName);
+                        et.setAdapter(adapter);
+
+                        if (palOfTheDay != null) {
+                            Log.v("FERU", palOfTheDay.getName());
+                        }
                     }
 
-                    AutoCompleteTextView et = view.findViewById(R.id.et);
-                    List<String> palName = new ArrayList<String>();
-                    for (Pal pal : palList) {
-                        palName.add(pal.getName());
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("Firebase", "Failed to read value.", databaseError.toException());
                     }
-                    CustomAdapter adapter = new CustomAdapter(requireContext(), palList, palName);
-                    et.setAdapter(adapter);
+                });
 
-                    if (palOfTheDay != null) {
-                        Log.v("FERU", palOfTheDay.getName());
+                Button btnGuess = view.findViewById(R.id.btnGuess);
+                btnGuess.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        guessClicked(view);
+                    }
+                });
+
+                AutoCompleteTextView et = view.findViewById(R.id.et);
+                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus) {
+                            et.showDropDown();
+                        }
+                    }
+                });
+
+                et.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                     }
 
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("Firebase", "Failed to read value.", databaseError.toException());
-                }
-            });
-
-            Button btnGuess = view.findViewById(R.id.btnGuess);
-            btnGuess.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    guessClicked(view);
-                }
-            });
-
-            AutoCompleteTextView et = view.findViewById(R.id.et);
-            et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (hasFocus) {
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
                         et.showDropDown();
                     }
-                }
-            });
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        String input = s.toString().toLowerCase();
+                        List<Pal> filteredPals = new ArrayList<>();
+                        List<String> filteredPalsName = new ArrayList<>();
 
 
-            et.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    et.showDropDown();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    String input = s.toString().toLowerCase();
-                    List<Pal> filteredPals = new ArrayList<>();
-                    List<String> filteredPalsName = new ArrayList<>();
-
-
-                    for (Pal pal : palList) {
-                        if (pal.getName().toLowerCase().startsWith(input)) {
-                            filteredPals.add(pal);
-                            filteredPalsName.add(pal.getName());
+                        for (Pal pal : palList) {
+                            if (pal.getName().toLowerCase().startsWith(input)) {
+                                filteredPals.add(pal);
+                                filteredPalsName.add(pal.getName());
+                            }
                         }
+
+                        CustomAdapter filteredAdapter = new CustomAdapter(requireContext(), filteredPals, filteredPalsName);
+                        et.setAdapter(filteredAdapter);
+                        et.showDropDown();
+                    }
+                });
+            } else {
+                id = PalOfTheDayManager.getLastPalId(requireContext());
+                Log.v("FERUU", String.valueOf(id));
+
+                palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
+                            String palId = palSnapshot.getKey();
+                            Pal pal = palSnapshot.getValue(Pal.class);
+                            Log.v("FERUUU", palId);
+                            if (palId != null && palId.equals(String.valueOf(id))) {
+                                palOfTheDay = pal;
+                            }
+                        }
+                        if (palOfTheDay != null) {
+                            Log.v("FERU", palOfTheDay.getName());
+                        }
+
+                        AutoCompleteTextView et = view.findViewById(R.id.et);
+                        TableLayout tableLayout = view.findViewById(R.id.tableLayout);
+                        LinearLayout llp = view.findViewById(R.id.llParent);
+                        LinearLayout ll = view.findViewById(R.id.llChild);
+                        llp.removeView(tableLayout);
+                        ll.removeView(et);
+                        Button btnGuess = view.findViewById(R.id.btnGuess);
+                        ll.removeView(btnGuess);
+                        TextView ttv = new TextView(requireContext());
+                        ttv.setText("Pal of the day already found !\nIt was :");
+                        ttv.setPadding(0, 200, 0, 0);
+                        ttv.setGravity(CENTER);
+                        ttv.setTextAppearance(R.style.PalNameStyle);
+                        ll.addView(ttv);
+                        ImageView img = new ImageView(requireContext());
+                        img.setPadding(10, 10, 10, 10);
+                        img.setContentDescription("palOfTheDay");
+                        Picasso.get()
+                                .load(palOfTheDay.getImage())
+                                .resize(750, 750)
+                                .centerInside()
+                                .into(img);
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        layoutParams.gravity = Gravity.CENTER;
+                        img.setLayoutParams(layoutParams);
+                        img.setBackgroundResource(R.drawable.border);
+                        ll.addView(img);
+                        TextView tv = new TextView(requireContext());
+                        tv.setPadding(0, 50, 0, 100);
+                        tv.setText(palOfTheDay.getName());
+                        tv.setGravity(CENTER);
+                        tv.setTextAppearance(R.style.PalNameStyle);
+                        ll.addView(tv);
+
+                        Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                        btnShare.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent sendIntent = new Intent();
+                                sendIntent.setAction(Intent.ACTION_SEND);
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                                sendIntent.setType("text/plain");
+
+                                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                                startActivity(shareIntent);
+                            }
+                        });
+                        llp.addView(btnShare);
                     }
 
-                    CustomAdapter filteredAdapter = new CustomAdapter(requireContext(), filteredPals, filteredPalsName);
-                    et.setAdapter(filteredAdapter);
-                    et.showDropDown();
-                }
-
-
-            });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("Firebase", "Failed to read value.", databaseError.toException());
+                    }
+                });
+            }
 
             return view;
         }
@@ -349,6 +409,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (win) {
+                    PalOfTheDayManager.setLastDate(requireContext());
+                    PalOfTheDayManager.setLastPalId(requireContext(), id);
+
                     LinearLayout llp = view.findViewById(R.id.llParent);
                     LinearLayout ll = view.findViewById(R.id.llChild);
                     ll.removeView(et);
@@ -362,6 +425,13 @@ public class MainActivity extends AppCompatActivity {
                             .resize(450, 450)
                             .centerInside()
                             .into(img);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParams.gravity = Gravity.CENTER;
+                    img.setLayoutParams(layoutParams);
+                    img.setBackgroundResource(R.drawable.border);
                     ll.addView(img);
                     TextView tv = new TextView(this.getContext());
                     tv.setText(palOfTheDay.getName());
