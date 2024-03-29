@@ -53,13 +53,24 @@ public class MainActivity extends AppCompatActivity {
 
     private final DatabaseReference palsReference = FirebaseDatabase.getInstance().getReference("pals");
     private int day;
+    private int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragGuess FragGuess = new FragGuess(palsReference);
+        if (PalOfTheDayManager.checkLastDate(this)) {
+            id = getRandomId();
+            PalOfTheDayManager.setLastPalId(this, id);
+            PalOfTheDayManager.setWin(this, false);
+            PalOfTheDayManager.setLastDate(this);
+        } else {
+            id = PalOfTheDayManager.getLastPalId(this);
+        }
+        Log.v("FERU", "id before : " + String.valueOf(id));
+        Log.v("FERU", "win before : " + String.valueOf(PalOfTheDayManager.getWin(this)));
+        FragGuess FragGuess = new FragGuess(palsReference, id);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.frag, FragGuess)
                 .addToBackStack(null)
@@ -74,34 +85,38 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                Fragment fragment = null;
+                if (id == R.id.paldexMenu) {
+                    fragment = fragmentManager.findFragmentByTag("paldex_fragment");
+                    if (fragment == null) {
+                        fragment = new FragPaldex(palsReference);
+                    }
+                } else if (id == R.id.homeMenu) {
+                    fragment = fragmentManager.findFragmentByTag("guess_fragment");
+                    if (fragment == null) {
+                        fragment = new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(MainActivity.this));
+                    }
+                }
 
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.frag);
-
-                if (currentFragment instanceof FragPaldex && id == R.id.paldexMenu) {
-                    return true;
-                }
-                if (currentFragment instanceof FragGuess && id == R.id.homeMenu) {
+                if (currentFragment != null && fragment != null && currentFragment.getClass().equals(fragment.getClass())) {
+                    // Fragment is already displayed, no need to switch
                     return true;
                 }
 
-                if (currentFragment != null) {
-                    transaction.detach(currentFragment);
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                if (fragment != null) {
+                    transaction.replace(R.id.frag, fragment, id == R.id.paldexMenu ? "paldex_fragment" : "guess_fragment");
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                    return true;
                 }
 
-                if (id == R.id.paldexMenu) {
-                    FragPaldex newFragment = new FragPaldex(palsReference);
-                    transaction.replace(R.id.frag, newFragment);
-                } else if (id == R.id.homeMenu) {
-                    FragGuess newFragment = new FragGuess(palsReference);
-                    transaction.replace(R.id.frag, newFragment);
-                }
-
-                transaction.addToBackStack(null).commit();
-
-                return true;
+                return false;
             }
         });
+
 
     }
 
@@ -119,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
         private List<Pal> palsGuessed;
         private final DatabaseReference palsReference;
 
-        public FragGuess(DatabaseReference palsReference) {
+        public FragGuess(DatabaseReference palsReference, int id) {
             this.palsReference = palsReference;
+            this.id = id;
         }
 
         @Override
@@ -134,9 +150,8 @@ public class MainActivity extends AppCompatActivity {
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
 
-            if (PalOfTheDayManager.checkLastDate(requireContext())) { // true if lastDate != today
 
-                id = getRandomId();
+            if (!PalOfTheDayManager.getWin(requireContext())) {
                 palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -202,14 +217,12 @@ public class MainActivity extends AppCompatActivity {
                         List<Pal> filteredPals = new ArrayList<>();
                         List<String> filteredPalsName = new ArrayList<>();
 
-
                         for (Pal pal : palList) {
                             if (pal.getName().toLowerCase().startsWith(input)) {
                                 filteredPals.add(pal);
                                 filteredPalsName.add(pal.getName());
                             }
                         }
-
                         CustomAdapter filteredAdapter = new CustomAdapter(requireContext(), filteredPals, filteredPalsName);
                         et.setAdapter(filteredAdapter);
                         et.showDropDown();
@@ -271,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                         tv.setTextAppearance(R.style.PalNameStyle);
                         ll.addView(tv);
 
-                        Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
+                        Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
 
                         btnShare.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -294,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-
             return view;
         }
 
@@ -409,8 +421,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (win) {
-                    PalOfTheDayManager.setLastDate(requireContext());
-                    PalOfTheDayManager.setLastPalId(requireContext(), id);
+                    PalOfTheDayManager.setWin(requireContext(), true);
 
                     LinearLayout llp = view.findViewById(R.id.llParent);
                     LinearLayout ll = view.findViewById(R.id.llChild);

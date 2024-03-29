@@ -10,6 +10,7 @@ public class PalOfTheDayManager {
     private static final String PREF_NAME = "PalOfTheDayPrefs";
     private static final String KEY_LAST_DATE = "";
     private static final String KEY_LAST_PAL_ID = "005";
+    private static final String KEY_WIN = "win";
 
     public static boolean checkLastDate(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -21,6 +22,18 @@ public class PalOfTheDayManager {
         int currentDayOfYear = cal.get(Calendar.DAY_OF_YEAR);
 
         return storedDateStr == null || storedDateStr.isEmpty() || !storedDateStr.equals(String.valueOf(currentDayOfYear));
+    }
+
+    public static boolean getWin(Context context){
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_WIN, false);
+    }
+
+    public static void setWin(Context context, boolean win){
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(KEY_WIN, win);
+        editor.apply();
     }
 
     public static void setLastDate(Context context){
