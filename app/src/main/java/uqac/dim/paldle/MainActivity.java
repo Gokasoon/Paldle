@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         private int[] ids = new int[15];
         private Pal palOfTheDay;
         private List<Pal> palList;
+        private List<Pal> palsGuessed;
         private final DatabaseReference palsReference;
 
         public FragGuess(DatabaseReference palsReference) {
@@ -145,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             palList = new ArrayList<>();
+            palsGuessed = new ArrayList<>();
+
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference();
@@ -190,6 +193,15 @@ public class MainActivity extends AppCompatActivity {
             });
 
             AutoCompleteTextView et = view.findViewById(R.id.et);
+            et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        et.showDropDown();
+                    }
+                }
+            });
+
 
             et.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -236,12 +248,20 @@ public class MainActivity extends AppCompatActivity {
 
             for (Pal pal : palList) {
                 if (pal.getName().toLowerCase().equals(guess)) {
+                    for (Pal palGuessed : palsGuessed) {
+                        if (palGuessed.getName().equals(pal.getName())) {
+                            et.setText("");
+                            et.clearFocus();
+                            return;
+                        }
+                    }
                     guessPal = pal;
                     break;
                 }
             }
 
             if (guessPal != null) {
+                palsGuessed.add(guessPal);
                 TableLayout tableLayout = view.findViewById(R.id.tableLayout);
                 TableRow tableRow = new TableRow(this.getContext());
                 tableRow.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border));
@@ -365,12 +385,11 @@ public class MainActivity extends AppCompatActivity {
                     llp.addView(btnShare);
                 } else {
                     et.setText("");
+                    et.clearFocus();
                 }
-
             } else {
                 return;
             }
-
         }
     }
 

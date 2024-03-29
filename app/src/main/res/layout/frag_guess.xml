@@ -29,7 +29,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="32dp"
-                    android:hint="Enter text"
+                    android:hint="@string/enter_a_pal_name"
                     android:inputType="text"
                     android:maxLines="1" />
 
