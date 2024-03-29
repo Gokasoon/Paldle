@@ -15,14 +15,9 @@
         android:theme="@style/Theme.Paldle"
         tools:targetApi="31">
         <activity
-            android:name=".PalView"
-            android:exported="false" />
-        <activity
-            android:name=".Paldex"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
