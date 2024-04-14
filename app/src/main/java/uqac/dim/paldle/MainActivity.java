@@ -79,8 +79,11 @@ public class MainActivity extends AppCompatActivity {
             id2 = PalOfTheDayManager.getLastPalId2(this);
             id3 = PalOfTheDayManager.getLastPalId3(this);
         }
-        Log.v("FERU", "id before : " + String.valueOf(id));
-        Log.v("FERU", "win before : " + String.valueOf(PalOfTheDayManager.getWin(this)));
+
+        Log.v("FERUUU", "id1 : " + String.valueOf(PalOfTheDayManager.getLastPalId(this)));
+        Log.v("FERUUU", "id2 : " + String.valueOf(PalOfTheDayManager.getLastPalId2(this)));
+        Log.v("FERUUU", "id3 : " + String.valueOf(PalOfTheDayManager.getLastPalId3(this)));
+
         FragGuess FragGuess = new FragGuess(palsReference, id);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.frag, FragGuess, "guess_fragment")
@@ -108,7 +111,12 @@ public class MainActivity extends AppCompatActivity {
                     if (fragment == null) {
                         fragment = new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(MainActivity.this));
                     }
+                } else if (id == R.id.descMenu) {
+                fragment = fragmentManager.findFragmentByTag("desc_fragment");
+                if (fragment == null) {
+                    fragment = new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(MainActivity.this));
                 }
+            }
 
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.frag);
                 if (currentFragment != null && fragment != null && currentFragment.getClass().equals(fragment.getClass())) {
@@ -118,7 +126,13 @@ public class MainActivity extends AppCompatActivity {
 
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 if (fragment != null) {
-                    transaction.replace(R.id.frag, fragment, id == R.id.paldexMenu ? "paldex_fragment" : "guess_fragment");
+                    if (id == R.id.paldexMenu){
+                        transaction.replace(R.id.frag, fragment, "paldex_fragment");
+                    } else if (id == R.id.homeMenu){
+                        transaction.replace(R.id.frag, fragment, "guess_fragment");
+                    } if (id == R.id.descMenu){
+                        transaction.replace(R.id.frag, fragment, "desc_fragment");
+                    }
                     transaction.addToBackStack(null);
                     transaction.commit();
                     return true;
@@ -353,7 +367,6 @@ public class MainActivity extends AppCompatActivity {
                         for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
                             String palId = palSnapshot.getKey();
                             Pal pal = palSnapshot.getValue(Pal.class);
-                            Log.v("FERUUU", palId);
                             if (palId != null && palId.equals(String.valueOf(id))) {
                                 palOfTheDay = pal;
                             }
@@ -537,6 +550,459 @@ public class MainActivity extends AppCompatActivity {
 
                 if (win) {
                     PalOfTheDayManager.setWin(requireContext(), true);
+
+                    LinearLayout llp = view.findViewById(R.id.llParent);
+                    LinearLayout ll = view.findViewById(R.id.llChild);
+                    ll.removeView(et);
+                    Button btnGuess = view.findViewById(R.id.btnGuess);
+                    ll.removeView(btnGuess);
+                    ImageView img = new ImageView(this.getContext());
+                    img.setPadding(10, 10, 10, 10);
+                    img.setContentDescription("palOfTheDay");
+                    Picasso.get()
+                            .load(palOfTheDay.getImage())
+                            .resize(450, 450)
+                            .centerInside()
+                            .into(img);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParams.gravity = Gravity.CENTER;
+                    img.setLayoutParams(layoutParams);
+                    img.setBackgroundResource(R.drawable.border);
+                    ll.addView(img);
+                    TextView tv = new TextView(this.getContext());
+                    tv.setText(palOfTheDay.getName());
+                    tv.setGravity(CENTER);
+                    tv.setTextAppearance(R.style.PalNameStyle);
+                    ll.addView(tv);
+                    Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                    btnShare.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                            sendIntent.setType("text/plain");
+
+                            Intent shareIntent = Intent.createChooser(sendIntent, null);
+                            startActivity(shareIntent);
+                        }
+                    });
+                    llp.addView(btnShare);
+                } else {
+                    et.setText("");
+                    et.clearFocus();
+                }
+            } else {
+                return;
+            }
+        }
+    }
+
+    public static class FragDesc extends Fragment {
+
+        private int id;
+        private Pal palOfTheDay;
+        private List<Pal> palList;
+        private List<Pal> palsGuessed = null;
+        private final DatabaseReference palsReference;
+
+        public FragDesc(DatabaseReference palsReference, int id) {
+            this.palsReference = palsReference;
+            this.id = id;
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            Log.v("FOUFOU", "pause");
+            for (Pal pal : palsGuessed ) {
+                Log.v("FOUFOU", "pal : " + pal.getName());
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            Log.v("FOUFOU", "resume");
+            TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
+            for (Pal pal : palsGuessed ){
+                Log.v("FOUFOU", "pal : " + pal.getName());
+                TableRow tableRow = new TableRow(this.getContext());
+                tableRow.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border));
+                TextView textName = new TextView(this.getContext());
+                textName.setGravity(CENTER);
+                textName.setPadding(8, 16, 8, 16);
+                tableRow.addView(textName);
+                TextView textId = new TextView(this.getContext());
+                textId.setGravity(CENTER);
+                textId.setPadding(8, 16, 8, 16);
+                tableRow.addView(textId);
+                TextView textTypes = new TextView(this.getContext());
+                textTypes.setGravity(CENTER);
+                textTypes.setPadding(8, 16, 8, 16);
+                tableRow.addView(textTypes);
+                TextView textSize = new TextView(this.getContext());
+                textSize.setGravity(CENTER);
+                textSize.setPadding(8, 16, 8, 16);
+                tableRow.addView(textSize);
+                tableLayout.addView(tableRow);
+
+                textName.setText(pal.getName());
+                if (pal.getName().equals(palOfTheDay.getName())) {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
+
+                textId.setText(String.valueOf(pal.getKey()));
+                String key = pal.getKey();
+
+                if (key.equals(palOfTheDay.getKey())) {
+                    textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    if (key.substring(0, 3).equals(palOfTheDay.getKey().substring(0, 3))) {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                }
+
+                String types = "";
+                for (String type : pal.getTypes()) {
+                    types += type + " ";
+                }
+                textTypes.setText(types);
+                List<String> guessTypes = pal.getTypes();
+                List<String> palTypes = palOfTheDay.getTypes();
+
+                if (guessTypes.size() == 2 && palTypes.size() == 2) {
+                    if ((Objects.equals(guessTypes.get(0), palTypes.get(0)) && Objects.equals(guessTypes.get(1), palTypes.get(1)) || (Objects.equals(guessTypes.get(0), palTypes.get(1)) && Objects.equals(guessTypes.get(1), palTypes.get(0))))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else if (Objects.equals(guessTypes.get(0), palTypes.get(0)) || Objects.equals(guessTypes.get(1), palTypes.get(1)) || Objects.equals(guessTypes.get(0), palTypes.get(1)) || Objects.equals(guessTypes.get(1), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else if (guessTypes.size() == 1 && palTypes.size() == 1) {
+                    if (Objects.equals(guessTypes.get(0), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else {
+                    boolean found = false;
+                    for (String type : guessTypes) {
+                        if (palTypes.contains(type)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                }
+                textSize.setText(String.valueOf(pal.getSize()));
+                if (Objects.equals(pal.getSize(), palOfTheDay.getSize())) {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
+            }
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            View view = inflater.inflate(R.layout.frag_desc, container, false);
+            TextView tv = view.findViewById(R.id.tvDesc);
+
+            palList = new ArrayList<>();
+
+            if (palsGuessed == null){
+                palsGuessed = new ArrayList<>();
+            }
+
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+
+
+            if (!PalOfTheDayManager.getWin2(requireContext())) {
+                palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
+                            String palId = palSnapshot.getKey();
+                            Pal pal = palSnapshot.getValue(Pal.class);
+                            if (palId != null && palId.equals(String.valueOf(id))) {
+                                palOfTheDay = pal;
+                            }
+                            palList.add(pal);
+                        }
+
+                        AutoCompleteTextView et = view.findViewById(R.id.et);
+                        List<String> palName = new ArrayList<String>();
+                        for (Pal pal : palList) {
+                            palName.add(pal.getName());
+                        }
+                        CustomAdapter adapter = new CustomAdapter(requireContext(), palList, palName);
+                        et.setAdapter(adapter);
+
+                        if (palOfTheDay != null) {
+                            Log.v("FERU", palOfTheDay.getName());
+                            tv.setText(palOfTheDay.getDescription());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("Firebase", "Failed to read value.", databaseError.toException());
+                    }
+                });
+
+                Button btnGuess = view.findViewById(R.id.btnGuess);
+                btnGuess.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        guessClicked(view);
+                    }
+                });
+
+                AutoCompleteTextView et = view.findViewById(R.id.et);
+                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus) {
+                            et.showDropDown();
+                        }
+                    }
+                });
+
+                et.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        et.showDropDown();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        String input = s.toString().toLowerCase();
+                        List<Pal> filteredPals = new ArrayList<>();
+                        List<String> filteredPalsName = new ArrayList<>();
+
+                        for (Pal pal : palList) {
+                            if (pal.getName().toLowerCase().startsWith(input)) {
+                                filteredPals.add(pal);
+                                filteredPalsName.add(pal.getName());
+                            }
+                        }
+                        CustomAdapter filteredAdapter = new CustomAdapter(requireContext(), filteredPals, filteredPalsName);
+                        et.setAdapter(filteredAdapter);
+                        et.showDropDown();
+                    }
+                });
+            } else {
+                id = PalOfTheDayManager.getLastPalId2(requireContext());
+                Log.v("FERUU", String.valueOf(id));
+
+                palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
+                            String palId = palSnapshot.getKey();
+                            Pal pal = palSnapshot.getValue(Pal.class);
+                            if (palId != null && palId.equals(String.valueOf(id))) {
+                                palOfTheDay = pal;
+                            }
+                        }
+                        if (palOfTheDay != null) {
+                            Log.v("FERU", palOfTheDay.getName());
+                        }
+
+                        AutoCompleteTextView et = view.findViewById(R.id.et);
+                        TableLayout tableLayout = view.findViewById(R.id.tableLayout);
+                        LinearLayout llp = view.findViewById(R.id.llParent);
+                        LinearLayout ll = view.findViewById(R.id.llChild);
+                        llp.removeView(tableLayout);
+                        ll.removeView(et);
+                        Button btnGuess = view.findViewById(R.id.btnGuess);
+                        ll.removeView(btnGuess);
+                        TextView ttv = new TextView(requireContext());
+                        ttv.setText("Desc Pal of the day already found !\nIt was :");
+                        ttv.setPadding(0, 200, 0, 0);
+                        ttv.setGravity(CENTER);
+                        ttv.setTextAppearance(R.style.PalNameStyle);
+                        ll.addView(ttv);
+                        ImageView img = new ImageView(requireContext());
+                        img.setPadding(10, 10, 10, 10);
+                        img.setContentDescription("palOfTheDay");
+                        Picasso.get()
+                                .load(palOfTheDay.getImage())
+                                .resize(750, 750)
+                                .centerInside()
+                                .into(img);
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        layoutParams.gravity = Gravity.CENTER;
+                        img.setLayoutParams(layoutParams);
+                        img.setBackgroundResource(R.drawable.border);
+                        ll.addView(img);
+                        TextView tv = new TextView(requireContext());
+                        tv.setPadding(0, 50, 0, 100);
+                        tv.setText(palOfTheDay.getName());
+                        tv.setGravity(CENTER);
+                        tv.setTextAppearance(R.style.PalNameStyle);
+                        ll.addView(tv);
+
+                        Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                        btnShare.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent sendIntent = new Intent();
+                                sendIntent.setAction(Intent.ACTION_SEND);
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                                sendIntent.setType("text/plain");
+
+                                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                                startActivity(shareIntent);
+                            }
+                        });
+                        llp.addView(btnShare);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("Firebase", "Failed to read value.", databaseError.toException());
+                    }
+                });
+            }
+            return view;
+        }
+
+
+        public void guessClicked(View view) {
+            AutoCompleteTextView et = view.findViewById(R.id.et);
+            String guess = et.getText().toString().toLowerCase();
+            boolean win = false;
+
+            Pal guessPal = null;
+
+            for (Pal pal : palList) {
+                if (pal.getName().toLowerCase().equals(guess)) {
+                    for (Pal palGuessed : palsGuessed) {
+                        if (palGuessed.getName().equals(pal.getName())) {
+                            et.setText("");
+                            et.clearFocus();
+                            return;
+                        }
+                    }
+                    guessPal = pal;
+                    break;
+                }
+            }
+
+            if (guessPal != null) {
+                palsGuessed.add(guessPal);
+                TableLayout tableLayout = view.findViewById(R.id.tableLayout);
+                TableRow tableRow = new TableRow(this.getContext());
+                tableRow.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border));
+                TextView textName = new TextView(this.getContext());
+                textName.setGravity(CENTER);
+                textName.setPadding(8, 16, 8, 16);
+                tableRow.addView(textName);
+                TextView textId = new TextView(this.getContext());
+                textId.setGravity(CENTER);
+                textId.setPadding(8, 16, 8, 16);
+                tableRow.addView(textId);
+                TextView textTypes = new TextView(this.getContext());
+                textTypes.setGravity(CENTER);
+                textTypes.setPadding(8, 16, 8, 16);
+                tableRow.addView(textTypes);
+                TextView textSize = new TextView(this.getContext());
+                textSize.setGravity(CENTER);
+                textSize.setPadding(8, 16, 8, 16);
+                tableRow.addView(textSize);
+                tableLayout.addView(tableRow);
+
+                textName.setText(guessPal.getName());
+                if (guessPal.getName().equals(palOfTheDay.getName())) {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    win = true;
+                } else {
+                    textName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
+
+                textId.setText(String.valueOf(guessPal.getKey()));
+                String key = guessPal.getKey();
+
+                if (key.equals(palOfTheDay.getKey())) {
+                    textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    if (key.substring(0, 3).equals(palOfTheDay.getKey().substring(0, 3))) {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textId.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                }
+
+                String types = "";
+                for (String type : guessPal.getTypes()) {
+                    types += type + " ";
+                }
+                textTypes.setText(types);
+                List<String> guessTypes = guessPal.getTypes();
+                List<String> palTypes = palOfTheDay.getTypes();
+
+                if (guessTypes.size() == 2 && palTypes.size() == 2) {
+                    if ((Objects.equals(guessTypes.get(0), palTypes.get(0)) && Objects.equals(guessTypes.get(1), palTypes.get(1)) || (Objects.equals(guessTypes.get(0), palTypes.get(1)) && Objects.equals(guessTypes.get(1), palTypes.get(0))))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else if (Objects.equals(guessTypes.get(0), palTypes.get(0)) || Objects.equals(guessTypes.get(1), palTypes.get(1)) || Objects.equals(guessTypes.get(0), palTypes.get(1)) || Objects.equals(guessTypes.get(1), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else if (guessTypes.size() == 1 && palTypes.size() == 1) {
+                    if (Objects.equals(guessTypes.get(0), palTypes.get(0))) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                } else {
+                    boolean found = false;
+                    for (String type : guessTypes) {
+                        if (palTypes.contains(type)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_orange_background));
+                    } else {
+                        textTypes.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                    }
+                }
+
+                textSize.setText(String.valueOf(guessPal.getSize()));
+                if (Objects.equals(guessPal.getSize(), palOfTheDay.getSize())) {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_green_background));
+                } else {
+                    textSize.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.border_red_background));
+                }
+
+                if (win) {
+                    PalOfTheDayManager.setWin2(requireContext(), true);
 
                     LinearLayout llp = view.findViewById(R.id.llParent);
                     LinearLayout ll = view.findViewById(R.id.llChild);

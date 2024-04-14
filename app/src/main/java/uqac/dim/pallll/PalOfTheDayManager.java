@@ -9,12 +9,12 @@ import java.util.Date;
 public class PalOfTheDayManager {
     private static final String PREF_NAME = "PalOfTheDayPrefs";
     private static final String KEY_LAST_DATE = "";
-    private static final String KEY_LAST_PAL_ID = "005";
+    private static final String KEY_LAST_PAL_ID = "LastPalId";
     private static final String KEY_WIN = "win";
-    private static final String KEY_LAST_PAL_ID2 = "005";
-    private static final String KEY_WIN2 = "win";
-    private static final String KEY_LAST_PAL_ID3 = "005";
-    private static final String KEY_WIN3 = "win";
+    private static final String KEY_LAST_PAL_ID2 = "LastPalId2";
+    private static final String KEY_WIN2 = "win2";
+    private static final String KEY_LAST_PAL_ID3 = "LastPalId3";
+    private static final String KEY_WIN3 = "win3";
 
     public static boolean checkLastDate(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);

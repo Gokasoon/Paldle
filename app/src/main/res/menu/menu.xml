@@ -8,4 +8,8 @@
         android:title="Home"
         android:id="@+id/homeMenu"
         android:icon="@drawable/home"/>
+    <item
+        android:title="Desc"
+        android:id="@+id/descMenu"
+        android:icon="@drawable/bookmark"/>
 </menu>
