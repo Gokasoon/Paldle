@@ -54,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final DatabaseReference palsReference = FirebaseDatabase.getInstance().getReference("pals");
     private int day;
-    private int id;
+    private int id; // guess game
+    private int id2; // description game
+    private int id3; // silouhette game
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +67,17 @@ public class MainActivity extends AppCompatActivity {
             id = getRandomId();
             PalOfTheDayManager.setLastPalId(this, id);
             PalOfTheDayManager.setWin(this, false);
+            id2 = getRandomId();
+            PalOfTheDayManager.setLastPalId2(this, id2);
+            PalOfTheDayManager.setWin2(this, false);
+            id3 = getRandomId();
+            PalOfTheDayManager.setLastPalId3(this, id3);
+            PalOfTheDayManager.setWin3(this, false);
             PalOfTheDayManager.setLastDate(this);
         } else {
             id = PalOfTheDayManager.getLastPalId(this);
+            id2 = PalOfTheDayManager.getLastPalId2(this);
+            id3 = PalOfTheDayManager.getLastPalId3(this);
         }
         Log.v("FERU", "id before : " + String.valueOf(id));
         Log.v("FERU", "win before : " + String.valueOf(PalOfTheDayManager.getWin(this)));
