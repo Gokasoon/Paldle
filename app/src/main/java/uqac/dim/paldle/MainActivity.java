@@ -84,9 +84,9 @@ public class MainActivity extends AppCompatActivity {
         Log.v("FERUUU", "id2 : " + String.valueOf(PalOfTheDayManager.getLastPalId2(this)));
         Log.v("FERUUU", "id3 : " + String.valueOf(PalOfTheDayManager.getLastPalId3(this)));
 
-        FragGuess FragGuess = new FragGuess(palsReference, id);
+        FragHome fragHome = new FragHome(palsReference);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.frag, FragGuess, "guess_fragment")
+                .add(R.id.frag, fragHome, "home_fragment")
                 .addToBackStack(null)
                 .commit();
 
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     if (fragment == null) {
                         fragment = new FragPaldex(palsReference);
                     }
-                } else if (id == R.id.homeMenu) {
+                } else if (id == R.id.guessMenu) {
                     fragment = fragmentManager.findFragmentByTag("guess_fragment");
                     if (fragment == null) {
                         fragment = new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(MainActivity.this));
@@ -121,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
                     if (fragment == null) {
                         fragment = new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(MainActivity.this));
                     }
+                } else if (id == R.id.homeMenu) {
+                    fragment = fragmentManager.findFragmentByTag("home_fragment");
+                    if (fragment == null) {
+                        fragment = new FragHome(palsReference);
+                    }
                 }
 
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.frag);
@@ -133,12 +138,14 @@ public class MainActivity extends AppCompatActivity {
                 if (fragment != null) {
                     if (id == R.id.paldexMenu){
                         transaction.replace(R.id.frag, fragment, "paldex_fragment");
-                    } else if (id == R.id.homeMenu){
+                    } else if (id == R.id.guessMenu){
                         transaction.replace(R.id.frag, fragment, "guess_fragment");
                     } if (id == R.id.descMenu){
                         transaction.replace(R.id.frag, fragment, "desc_fragment");
                     } if (id == R.id.silMenu){
                         transaction.replace(R.id.frag, fragment, "silhouette_fragment");
+                    } if (id == R.id.homeMenu){
+                        transaction.replace(R.id.frag, fragment, "home_fragment");
                     }
                     transaction.addToBackStack(null);
                     transaction.commit();
@@ -833,6 +840,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (palOfTheDay != null) {
                             Log.v("FERU", palOfTheDay.getName());
+                            tv.setText(palOfTheDay.getDescription());
                         }
 
                         AutoCompleteTextView et = view.findViewById(R.id.et);
@@ -844,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
                         Button btnGuess = view.findViewById(R.id.btnGuess);
                         ll.removeView(btnGuess);
                         TextView ttv = new TextView(requireContext());
-                        ttv.setText("Desc Pal of the day already found !\nIt was :");
+                        ttv.setText("Pal's Description of the day already found !\nIt was :");
                         ttv.setPadding(0, 200, 0, 0);
                         ttv.setGravity(CENTER);
                         ttv.setTextAppearance(R.style.PalNameStyle);
@@ -1676,4 +1684,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static class FragHome extends Fragment implements View.OnClickListener{
+
+        private DatabaseReference palsReference;
+
+        public FragHome(DatabaseReference palsReference){
+            this.palsReference = palsReference;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.frag_home, container, false);
+            view.findViewById(R.id.btnGuessGame).setOnClickListener(this);
+            view.findViewById(R.id.btnDescGame).setOnClickListener(this);
+            view.findViewById(R.id.btnSilGame).setOnClickListener(this);
+            return view;
+        }
+
+        @Override
+        public void onClick(View v) {
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+
+            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+            if (v.getId() == R.id.btnGuessGame) {
+                transaction.replace(R.id.frag, new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(requireContext())));
+                bottomNavigationView.setSelectedItemId(R.id.guessMenu);
+            } else if (v.getId() == R.id.btnDescGame) {
+                transaction.replace(R.id.frag, new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(requireContext())));
+                bottomNavigationView.setSelectedItemId(R.id.descMenu);
+            } if (v.getId() == R.id.btnSilGame) {
+                transaction.replace(R.id.frag, new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(requireContext())));
+                bottomNavigationView.setSelectedItemId(R.id.silMenu);
+            }
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
+
+    }
 }
