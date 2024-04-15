@@ -1696,9 +1696,23 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.frag_home, container, false);
-            view.findViewById(R.id.btnGuessGame).setOnClickListener(this);
-            view.findViewById(R.id.btnDescGame).setOnClickListener(this);
-            view.findViewById(R.id.btnSilGame).setOnClickListener(this);
+            Button btnGuess = view.findViewById(R.id.btnGuessGame);
+            btnGuess.setOnClickListener(this);
+            Button btnDesc = view.findViewById(R.id.btnDescGame);
+            btnDesc.setOnClickListener(this);
+            Button btnSil = view.findViewById(R.id.btnSilGame);
+            btnSil.setOnClickListener(this);
+
+
+            if (PalOfTheDayManager.getWin(requireContext())) {
+                btnGuess.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
+            }
+            if (PalOfTheDayManager.getWin2(requireContext())) {
+                btnDesc.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
+            }
+            if (PalOfTheDayManager.getWin3(requireContext())) {
+                btnSil.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
+            }
             return view;
         }
 
