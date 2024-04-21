@@ -23,7 +23,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="50dp"
-                    android:padding="50dp"
+                    android:padding="25dp"
                     style="@style/PalNameStyle"
                     android:background="@drawable/border"/>
 
