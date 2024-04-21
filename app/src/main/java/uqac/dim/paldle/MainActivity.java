@@ -454,6 +454,11 @@ public class MainActivity extends AppCompatActivity {
                         LinearLayout lol = new LinearLayout(requireContext());
                         lol.setOrientation(LinearLayout.HORIZONTAL);
                         lol.setGravity(Gravity.CENTER);
+                        LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        layoutParamsLol.bottomMargin = 100;
                         Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
                         if (PalOfTheDayManager.getWin2(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
                             btnNextGame.setText("Home");
@@ -498,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                         lol.addView(btnShare);
                         lol.addView(btnNextGame);
-                        llp.addView(lol);
+                        llp.addView(lol, layoutParamsLol);
                     }
 
                     @Override
@@ -653,6 +658,11 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout lol = new LinearLayout(requireContext());
                     lol.setOrientation(LinearLayout.HORIZONTAL);
                     lol.setGravity(Gravity.CENTER);
+                    LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParamsLol.bottomMargin = 100;
                     Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
                     if (PalOfTheDayManager.getWin2(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
                         btnNextGame.setText("Home");
@@ -697,7 +707,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     lol.addView(btnShare);
                     lol.addView(btnNextGame);
-                    llp.addView(lol);
+                    llp.addView(lol, layoutParamsLol);
                 } else {
                     et.setText("");
                     et.clearFocus();
@@ -975,6 +985,11 @@ public class MainActivity extends AppCompatActivity {
                         LinearLayout lol = new LinearLayout(requireContext());
                         lol.setOrientation(LinearLayout.HORIZONTAL);
                         lol.setGravity(Gravity.CENTER);
+                        LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        layoutParamsLol.bottomMargin = 100;
                         Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
                         if (PalOfTheDayManager.getWin(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
                             btnNextGame.setText("Home");
@@ -1019,7 +1034,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                         lol.addView(btnShare);
                         lol.addView(btnNextGame);
-                        llp.addView(lol);
+                        llp.addView(lol, layoutParamsLol);
                     }
 
                     @Override
@@ -1171,6 +1186,11 @@ public class MainActivity extends AppCompatActivity {
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
 
+                    LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParamsLol.bottomMargin = 100;
                     LinearLayout lol = new LinearLayout(requireContext());
                     lol.setOrientation(LinearLayout.HORIZONTAL);
                     lol.setGravity(Gravity.CENTER);
@@ -1218,7 +1238,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     lol.addView(btnShare);
                     lol.addView(btnNextGame);
-                    llp.addView(lol);
+                    llp.addView(lol, layoutParamsLol);
                 } else {
                     et.setText("");
                     et.clearFocus();
@@ -1495,6 +1515,11 @@ public class MainActivity extends AppCompatActivity {
                         tv.setTextAppearance(R.style.PalNameStyle);
                         ll.addView(tv);
 
+                        LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                        layoutParamsLol.bottomMargin = 100;
                         LinearLayout lol = new LinearLayout(requireContext());
                         lol.setOrientation(LinearLayout.HORIZONTAL);
                         lol.setGravity(Gravity.CENTER);
@@ -1542,7 +1567,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                         lol.addView(btnShare);
                         lol.addView(btnNextGame);
-                        llp.addView(lol);
+                        llp.addView(lol, layoutParamsLol);
                     }
 
                     @Override
@@ -1691,6 +1716,11 @@ public class MainActivity extends AppCompatActivity {
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
 
+                    LinearLayout.LayoutParams layoutParamsLol = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    layoutParamsLol.bottomMargin = 100;
                     LinearLayout lol = new LinearLayout(requireContext());
                     lol.setOrientation(LinearLayout.HORIZONTAL);
                     lol.setGravity(Gravity.CENTER);
@@ -1738,7 +1768,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     lol.addView(btnShare);
                     lol.addView(btnNextGame);
-                    llp.addView(lol);
+                    llp.addView(lol, layoutParamsLol);
                 } else {
                     et.setText("");
                     et.clearFocus();
