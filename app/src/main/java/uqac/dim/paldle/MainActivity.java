@@ -84,6 +84,31 @@ public class MainActivity extends AppCompatActivity {
         Log.v("FERUUU", "id2 : " + String.valueOf(PalOfTheDayManager.getLastPalId2(this)));
         Log.v("FERUUU", "id3 : " + String.valueOf(PalOfTheDayManager.getLastPalId3(this)));
 
+        palsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot palSnapshot : dataSnapshot.getChildren()) {
+                    if (palSnapshot.getKey() != null && palSnapshot.getKey().equals(String.valueOf(id))) {
+                        Pal pal = palSnapshot.getValue(Pal.class);
+                        Log.v("FERUUU", "pal1 : " + pal.getName());
+                    } else if (palSnapshot.getKey() != null && palSnapshot.getKey().equals(String.valueOf(id2))) {
+                        Pal pal = palSnapshot.getValue(Pal.class);
+                        Log.v("FERUUU", "pal2 : " + pal.getName());
+                    } else if (palSnapshot.getKey() != null && palSnapshot.getKey().equals(String.valueOf(id3))) {
+                        Pal pal = palSnapshot.getValue(Pal.class);
+                        Log.v("FERUUU", "pal3 : " + pal.getName());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("Firebase", "Failed to read value.", databaseError.toException());
+            }
+        });
+
+
+
         FragHome fragHome = new FragHome(palsReference);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.frag, fragHome, "home_fragment")
@@ -426,8 +451,39 @@ public class MainActivity extends AppCompatActivity {
                         tv.setTextAppearance(R.style.PalNameStyle);
                         ll.addView(tv);
 
+                        LinearLayout lol = new LinearLayout(requireContext());
+                        lol.setOrientation(LinearLayout.HORIZONTAL);
+                        lol.setGravity(Gravity.CENTER);
+                        Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                        if (PalOfTheDayManager.getWin2(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
+                            btnNextGame.setText("Home");
+                        } else {
+                            btnNextGame.setText("Next Game");
+                        }
                         Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                        btnNextGame.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                                if (!PalOfTheDayManager.getWin2(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.descMenu);
+                                    transaction.replace(R.id.frag, new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(requireContext())), "desc_fragment");
+                                } else if (!PalOfTheDayManager.getWin3(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.silMenu);
+                                    transaction.replace(R.id.frag, new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(requireContext())), "silhouette_fragment");
+                                } else {
+                                    bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                    transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                                }
+
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }
+                        });
                         btnShare.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -440,7 +496,9 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(shareIntent);
                             }
                         });
-                        llp.addView(btnShare);
+                        lol.addView(btnShare);
+                        lol.addView(btnNextGame);
+                        llp.addView(lol);
                     }
 
                     @Override
@@ -591,8 +649,40 @@ public class MainActivity extends AppCompatActivity {
                     tv.setGravity(CENTER);
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
-                    Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                    LinearLayout lol = new LinearLayout(requireContext());
+                    lol.setOrientation(LinearLayout.HORIZONTAL);
+                    lol.setGravity(Gravity.CENTER);
+                    Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                    if (PalOfTheDayManager.getWin2(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
+                        btnNextGame.setText("Home");
+                    } else {
+                        btnNextGame.setText("Next Game");
+                    }
+                    Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                    btnNextGame.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                            if (!PalOfTheDayManager.getWin2(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.descMenu);
+                                transaction.replace(R.id.frag, new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(requireContext())), "desc_fragment");
+                            } else if (!PalOfTheDayManager.getWin3(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.silMenu);
+                                transaction.replace(R.id.frag, new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(requireContext())), "silhouette_fragment");
+                            } else {
+                                bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                            }
+
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                        }
+                    });
                     btnShare.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -605,7 +695,9 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(shareIntent);
                         }
                     });
-                    llp.addView(btnShare);
+                    lol.addView(btnShare);
+                    lol.addView(btnNextGame);
+                    llp.addView(lol);
                 } else {
                     et.setText("");
                     et.clearFocus();
@@ -880,8 +972,39 @@ public class MainActivity extends AppCompatActivity {
                         tv.setTextAppearance(R.style.PalNameStyle);
                         ll.addView(tv);
 
+                        LinearLayout lol = new LinearLayout(requireContext());
+                        lol.setOrientation(LinearLayout.HORIZONTAL);
+                        lol.setGravity(Gravity.CENTER);
+                        Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                        if (PalOfTheDayManager.getWin(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
+                            btnNextGame.setText("Home");
+                        } else {
+                            btnNextGame.setText("Next Game");
+                        }
                         Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                        btnNextGame.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                                if (!PalOfTheDayManager.getWin(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.guessMenu);
+                                    transaction.replace(R.id.frag, new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(requireContext())), "guess_fragment");
+                                } else if (!PalOfTheDayManager.getWin3(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.silMenu);
+                                    transaction.replace(R.id.frag, new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(requireContext())), "silhouette_fragment");
+                                } else {
+                                    bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                    transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                                }
+
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }
+                        });
                         btnShare.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -894,7 +1017,9 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(shareIntent);
                             }
                         });
-                        llp.addView(btnShare);
+                        lol.addView(btnShare);
+                        lol.addView(btnNextGame);
+                        llp.addView(lol);
                     }
 
                     @Override
@@ -1045,8 +1170,40 @@ public class MainActivity extends AppCompatActivity {
                     tv.setGravity(CENTER);
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
-                    Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                    LinearLayout lol = new LinearLayout(requireContext());
+                    lol.setOrientation(LinearLayout.HORIZONTAL);
+                    lol.setGravity(Gravity.CENTER);
+                    Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                    if (PalOfTheDayManager.getWin(requireContext()) && PalOfTheDayManager.getWin3(requireContext())) {
+                        btnNextGame.setText("Home");
+                    } else {
+                        btnNextGame.setText("Next Game");
+                    }
+                    Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                    btnNextGame.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                            if (!PalOfTheDayManager.getWin(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.guessMenu);
+                                transaction.replace(R.id.frag, new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(requireContext())), "guess_fragment");
+                            } else if (!PalOfTheDayManager.getWin3(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.silMenu);
+                                transaction.replace(R.id.frag, new FragSil(palsReference, PalOfTheDayManager.getLastPalId3(requireContext())), "silhouette_fragment");
+                            } else {
+                                bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                            }
+
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                        }
+                    });
                     btnShare.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1059,7 +1216,9 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(shareIntent);
                         }
                     });
-                    llp.addView(btnShare);
+                    lol.addView(btnShare);
+                    lol.addView(btnNextGame);
+                    llp.addView(lol);
                 } else {
                     et.setText("");
                     et.clearFocus();
@@ -1336,8 +1495,39 @@ public class MainActivity extends AppCompatActivity {
                         tv.setTextAppearance(R.style.PalNameStyle);
                         ll.addView(tv);
 
+                        LinearLayout lol = new LinearLayout(requireContext());
+                        lol.setOrientation(LinearLayout.HORIZONTAL);
+                        lol.setGravity(Gravity.CENTER);
+                        Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                        if (PalOfTheDayManager.getWin(requireContext()) && PalOfTheDayManager.getWin2(requireContext())) {
+                            btnNextGame.setText("Home");
+                        } else {
+                            btnNextGame.setText("Next Game");
+                        }
                         Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                        btnNextGame.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                                if (!PalOfTheDayManager.getWin(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.guessMenu);
+                                    transaction.replace(R.id.frag, new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(requireContext())), "guess_fragment");
+                                } else if (!PalOfTheDayManager.getWin2(requireContext())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.descMenu);
+                                    transaction.replace(R.id.frag, new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(requireContext())), "desc_fragment");
+                                } else {
+                                    bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                    transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                                }
+
+                                transaction.addToBackStack(null);
+                                transaction.commit();
+                            }
+                        });
                         btnShare.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -1350,7 +1540,9 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(shareIntent);
                             }
                         });
-                        llp.addView(btnShare);
+                        lol.addView(btnShare);
+                        lol.addView(btnNextGame);
+                        llp.addView(lol);
                     }
 
                     @Override
@@ -1498,8 +1690,40 @@ public class MainActivity extends AppCompatActivity {
                     tv.setGravity(CENTER);
                     tv.setTextAppearance(R.style.PalNameStyle);
                     ll.addView(tv);
-                    Button btnShare = (Button)getLayoutInflater().inflate(R.layout.btn_share, null);
 
+                    LinearLayout lol = new LinearLayout(requireContext());
+                    lol.setOrientation(LinearLayout.HORIZONTAL);
+                    lol.setGravity(Gravity.CENTER);
+                    Button btnNextGame = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+                    if (PalOfTheDayManager.getWin(requireContext()) && PalOfTheDayManager.getWin2(requireContext())) {
+                        btnNextGame.setText("Home");
+                    } else {
+                        btnNextGame.setText("Next Game");
+                    }
+                    Button btnShare = (Button) getLayoutInflater().inflate(R.layout.btn_share, null);
+
+                    btnNextGame.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation);
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+                            if (!PalOfTheDayManager.getWin(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.guessMenu);
+                                transaction.replace(R.id.frag, new FragGuess(palsReference, PalOfTheDayManager.getLastPalId(requireContext())), "guess_fragment");
+                            } else if (!PalOfTheDayManager.getWin2(requireContext())) {
+                                bottomNavigationView.setSelectedItemId(R.id.descMenu);
+                                transaction.replace(R.id.frag, new FragDesc(palsReference, PalOfTheDayManager.getLastPalId2(requireContext())), "desc_fragment");
+                            } else {
+                                bottomNavigationView.setSelectedItemId(R.id.homeMenu);
+                                transaction.replace(R.id.frag, new FragHome(palsReference), "home_fragment");
+                            }
+
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                        }
+                    });
                     btnShare.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1512,7 +1736,9 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(shareIntent);
                         }
                     });
-                    llp.addView(btnShare);
+                    lol.addView(btnShare);
+                    lol.addView(btnNextGame);
+                    llp.addView(lol);
                 } else {
                     et.setText("");
                     et.clearFocus();
