@@ -1010,7 +1010,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 Intent sendIntent = new Intent();
                                 sendIntent.setAction(Intent.ACTION_SEND);
-                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my pal description of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
                                 sendIntent.setType("text/plain");
 
                                 Intent shareIntent = Intent.createChooser(sendIntent, null);
@@ -1209,7 +1209,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             Intent sendIntent = new Intent();
                             sendIntent.setAction(Intent.ACTION_SEND);
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my pal description of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
                             sendIntent.setType("text/plain");
 
                             Intent shareIntent = Intent.createChooser(sendIntent, null);
@@ -1533,7 +1533,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 Intent sendIntent = new Intent();
                                 sendIntent.setAction(Intent.ACTION_SEND);
-                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my pal silhouette of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
                                 sendIntent.setType("text/plain");
 
                                 Intent shareIntent = Intent.createChooser(sendIntent, null);
@@ -1729,7 +1729,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             Intent sendIntent = new Intent();
                             sendIntent.setAction(Intent.ACTION_SEND);
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my Pal of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, "I found my pal silhouette of the Day : " + palOfTheDay.getName() + " !\nGo find yours on Paldle !");
                             sendIntent.setType("text/plain");
 
                             Intent shareIntent = Intent.createChooser(sendIntent, null);
