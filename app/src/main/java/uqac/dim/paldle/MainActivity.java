@@ -1818,6 +1818,7 @@ public class MainActivity extends AppCompatActivity {
                             tv.setText(pal.getName());
                             tv.setGravity(Gravity.CENTER);
                             tv.setTextAppearance(R.style.PalNameStyle);
+                            tv.setPadding(0, 5, 0, 10);
 
                             LinearLayout ll = new LinearLayout(getContext());
                             ll.setOrientation(LinearLayout.VERTICAL);
