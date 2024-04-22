@@ -11,13 +11,13 @@
     <item
         android:title="Guess"
         android:id="@+id/guessMenu"
-        android:icon="@drawable/bookmark"/>
+        android:icon="@drawable/question"/>
     <item
         android:title="Desc"
         android:id="@+id/descMenu"
-        android:icon="@drawable/bookmark"/>
+        android:icon="@drawable/openbook"/>
     <item
         android:title="Sil"
         android:id="@+id/silMenu"
-        android:icon="@drawable/bookmark"/>
+        android:icon="@drawable/sil"/>
 </menu>

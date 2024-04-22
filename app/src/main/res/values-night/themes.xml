@@ -1,12 +1,30 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Paldle" parent="Theme.Material3.DayNight">
-        <item name="colorPrimary">@color/purple</item>
+    <style name="Base.Theme.Paldle" parent="Theme.AppCompat.NoActionBar">
+
     </style>
 
+    <style name="Theme.Paldle" parent="Base.Theme.Paldle" />
+
     <style name="PalNameStyle">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/black</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="PalNameStyle.Acceuil">
+        <item name="android:background">#F1D640</item>
+    </style>
+
+    <style name="PalNameStyle.Acceuil.Element">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginTop">32dp</item>
+    </style>
+
+    <style name="PalNameStyle.Acceuil.Element.Boutons">
+        <item name="android:width">225dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:background">@drawable/border</item>
     </style>
 </resources>

@@ -11,4 +11,8 @@
     <string name="guesss">Guess</string>
     <string name="share">Share</string>
     <string name="enter_a_pal_name">Enter a Pal Name</string>
+    <string name="Text_GuessName_Button">Random guess Game</string>
+    <string name="Text_GuessDesc_Button">Description guess Game</string>
+    <string name="Text_GuessSil_Button">Silhouette guess Game</string>
+    <string name="Credit">GVOKA Soan, ECHENIQUE Lucas, MAIRE Erwan  -  Projet Paldle</string>
 </resources>

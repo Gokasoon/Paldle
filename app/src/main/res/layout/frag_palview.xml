@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    style="@style/PalNameStyle.Palview">
 
     <ImageView
         android:id="@+id/img"
@@ -21,37 +22,31 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/PalNameStyle"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:textSize="24sp" />
+            style="@style/PalNameStyle.Palview.Name"/>
 
         <TextView
             android:id="@+id/types"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp" />
+            style="@style/PalNameStyle.Palview.Text"/>
 
         <TextView
             android:id="@+id/size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp" />
+            style="@style/PalNameStyle.Palview.Text"/>
 
         <TextView
             android:id="@+id/desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp" />
+            style="@style/PalNameStyle.Palview.Text"/>
 
         <Button
             android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:text="@string/paldex"
-            style="@style/PalNameStyle"
-            android:layout_marginTop="20dp" />
+            style="@style/PalNameStyle.Acceuil.Element.Boutons" />
     </LinearLayout>
 </LinearLayout>

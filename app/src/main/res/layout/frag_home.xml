@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,47 +10,54 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingBottom="50dp"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        style="@style/PalNameStyle.Acceuil">
 
         <LinearLayout
             android:id="@+id/llParent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            style="@style/PalNameStyle.Acceuil">
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/logo"
+                style="@style/PalNameStyle.Acceuil.Element">
+
+            </ImageView>
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Random guess Game"
                 android:id="@+id/btnGuessGame"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="180dp"
-                android:background="@drawable/border"
-                style="@style/PalNameStyle"
-                android:layout_marginBottom="32dp"/>
+                style="@style/PalNameStyle.Acceuil.Element.Boutons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Text_GuessName_Button" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Description guess Game"
+                android:text="@string/Text_GuessDesc_Button"
                 android:id="@+id/btnDescGame"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="32dp"
-                android:background="@drawable/border"
-                style="@style/PalNameStyle"
-                android:layout_marginBottom="32dp"/>
+                style="@style/PalNameStyle.Acceuil.Element.Boutons" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Silhouette guess Game"
+                android:text="@string/Text_GuessSil_Button"
                 android:id="@+id/btnSilGame"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="32dp"
-                android:background="@drawable/border"
-                style="@style/PalNameStyle"
-                android:layout_marginBottom="32dp"/>
+                style="@style/PalNameStyle.Acceuil.Element.Boutons" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Credit"
+                style="@style/PalNameStyle.Acceuil.Credit">
+            </TextView>
 
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

@@ -9,12 +9,13 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingBottom="50dp"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        style="@style/PalNameStyle.Guess">
 
         <LinearLayout
             android:id="@+id/llParent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <ImageView
@@ -36,6 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="32dp"
+                    android:textColorHint="@color/black"
                     android:hint="@string/enter_a_pal_name"
                     android:inputType="text"
                     android:maxLines="1" />
@@ -44,8 +46,7 @@
                     android:id="@+id/btnGuess"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    style="@style/PalNameStyle"
+                    style="@style/PalNameStyle.Guess.Bouton"
                     android:text="@string/guesss"/>
 
             </LinearLayout>
