@@ -1,7 +1,10 @@
 *.iml
 .gradle
 .idea
-/app/build/
+/app/build/generated
+/app/build/intermediates
+/app/build/tmp
+/app/build/gmpAppId.txt
 /local.properties
 /.idea/caches
 /.idea/libraries
