@@ -1,3 +1,3 @@
 # Paldle
 
-Wordle game for Palworld creatures, including a Paldex and three daily mini-games.
+Wordle game for Palworld creatures, including a Paldex and 3 daily mini-games.
