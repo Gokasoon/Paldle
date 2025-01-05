@@ -13,15 +13,20 @@ Paldle is an Android wordle game featuring creatures from Palworld. The app incl
 - **Backup and Restore**: Automatic backup and restore of game data.
 - **Firebase Integration**: Real-time data synchronization using Firebase.
 
-## How to Play
-
-1. **Guess the Name**: Enter the name of the Palworld creature based on the given hints.
-2. **Guess the Description**: Enter the name of the Palworld creature based on its description.
-3. **Guess the Silhouette**: Enter the name of the Palworld creature based on its silhouette.
-
 ## Technologies Used
 
 - **Android SDK**
 - **Firebase**
 - **Picasso** for image loading
 - **Gradle** for build automation
+
+## Screenshots
+
+### Main menu
+![Main menu](./main_menu.jpg)
+
+### Paldex
+![Paldex](./paldex.jpg)
+
+### Pal info
+![Pal info](./pal_info.jpg)
